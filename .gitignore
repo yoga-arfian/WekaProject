@@ -1,0 +1,14 @@
+# Java compiled files
+bin/
+target/
+*.class
+
+# macOS
+.DS_Store
+
+# Eclipse workspace metadata
+.metadata/
+
+# Logs and temporary files
+*.log
+*.tmp
