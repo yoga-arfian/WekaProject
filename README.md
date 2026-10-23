@@ -1,76 +1,103 @@
-# WekaProject
+# WekaProject — Multilayer Perceptron (MLP)
 
-A Java-based academic project exploring neural network classification using the WEKA machine learning toolkit.
+A Java 21 / WEKA 3.8.6 project that reproduces the supplied WEKA Explorer setup, provides a Swing GUI, runs a learning-rate experiment, and exports measured results to CSV.
 
-## Project Overview
+## Important dataset distinction
 
-This project demonstrates the use of a Multilayer Perceptron (MLP) classifier through Java and WEKA. It provides a foundation for experimenting with neural network configuration, classification datasets, and model evaluation.
+The supplied Explorer output reports **99 instances** and class counts of Bus 19, Car 32, Truck 27, and Bike 21. In the uploaded project, `data/vehicledata.arff` contains **100,000 instances**, not 99. The first 99 rows of that file have the same class counts as the reference output, so this project includes `data/vehicledata_99.arff`, which contains those first 99 rows and is the default dataset for comparison.
 
-## Implementation
+Use `vehicledata_99.arff` when comparing with the supplied Explorer output. Use `vehicledata.arff` or `v100k.arff` for large-data experiments. Those two large files contain the same records and must not be treated as independent training and test sets.
 
-- **MLPerceptron.java** — Java implementation for running a WEKA Multilayer Perceptron experiment.
-- **WEKA MultilayerPerceptron** — Neural network classifier used for supervised learning and classification.
-- **ARFF datasets** — Input datasets used for experimentation.
+Matching class counts alone does not prove that a dataset is identical to the original 99-row file. If the original 99-row file is available, use it to confirm exact equivalence.
 
-## Technologies
+## Reference classifier settings
 
-- Java
-- WEKA machine learning toolkit
-- Eclipse IDE
-- Attribute-Relation File Format (ARFF)
+The default run uses the options from the supplied WEKA output:
 
-## Project Structure
+```text
+-L 0.3 -M 0.2 -N 500 -V 0 -S 0 -E 20 -H a
+```
+
+- Learning rate: `0.3`
+- Momentum: `0.2`
+- Training epochs: `500`
+- Validation set size: `0`
+- Classifier random seed: `0`
+- Validation threshold: `20`
+- Hidden layers: `a` (WEKA automatic sizing)
+- Evaluation: stratified 10-fold cross-validation
+- Cross-validation random seed: `1` (WEKA Explorer's usual default)
+
+The CLI and GUI report cross-validation metrics separately from the model trained on the full dataset. Exact weights and metrics can vary if the WEKA version, source dataset, or cross-validation seed differs.
+
+## Project structure
 
 ```text
 WekaProject/
 ├── src/
-│   └── MLPerceptron.java
+│   ├── MLPModel.java
+│   ├── MLPerceptron.java
+│   ├── MLPExperimentRunner.java
+│   └── WekaProjectGUI.java
 ├── data/
-│   ├── v100k.arff
+│   ├── vehicledata_99.arff
 │   ├── vehicledata.arff
-│   ├── ladygaga.arff
-│   └── testdata.arff
-├── .classpath
+│   ├── v100k.arff
+│   ├── testdata.arff
+│   └── ladygaga.arff
+├── results/
+├── pom.xml
 ├── .project
+├── .classpath
 ├── .gitignore
-└── README.md
+├── README.md
+└── REPORT.md
 ```
 
-## Datasets
+## Run in Eclipse
 
-The `data/` directory contains four ARFF datasets:
+1. Install JDK 21 and Eclipse with Maven integration (m2e).
+2. Extract this ZIP.
+3. In Eclipse, select **File → Import → Maven → Existing Maven Projects** and select the `WekaProject` folder.
+4. Let Maven resolve the `nz.ac.waikato.cms.weka:weka-stable:3.8.6` dependency.
+5. Run `WekaProjectGUI.java` as a Java Application.
+6. Keep `vehicledata_99.arff` selected for comparison with the reference output, then click **Run Cross-Validation**.
 
-- `v100k.arff`
-- `vehicledata.arff`
-- `ladygaga.arff`
-- `testdata.arff`
+If Maven import is not available, import as **Existing Projects into Workspace**, then right-click the project and select **Maven → Update Project**.
 
-Each dataset may have different attributes and classification targets. Check the dataset header and the configuration in `MLPerceptron.java` to determine the intended use of each file.
+## Run from a terminal
 
-## Getting Started
+From the project root, with Maven installed:
 
-1. Install a compatible JDK.
-2. Install WEKA and locate the appropriate WEKA JAR file.
-3. Open Eclipse and import this folder using **File → Import → Existing Projects into Workspace**.
-4. Configure the project's Java build path to include the WEKA JAR.
-5. Verify the dataset path and class attribute in `MLPerceptron.java`.
-6. Run `MLPerceptron.java` as a Java Application if it contains a `main` method.
+```bash
+mvn clean compile
+mvn exec:java
+```
 
-## Model Evaluation
+`mvn exec:java` launches the Swing GUI. To run the CLI instead:
 
-The WEKA Multilayer Perceptron supports supervised classification. Evaluation methods such as cross-validation can be used to estimate model performance. Interpret the results according to the dataset, classifier options, and evaluation method configured in the source code.
+```bash
+mvn exec:java -Dexec.mainClass=MLPerceptron -Dexec.args="vehicledata_99.arff 10 1"
+```
 
-## Limitations
+To run the learning-rate experiment:
 
-This project is intended for academic learning and experimentation. Results depend on dataset quality, preprocessing, classifier parameters, and evaluation methodology. They should not be treated as evidence of real-world performance without further validation.
+```bash
+mvn exec:java -Dexec.mainClass=MLPExperimentRunner -Dexec.args="vehicledata_99.arff results/learning_rate_experiment.csv"
+```
 
-## Author
+The experiment compares learning rates 0.1, 0.3, and 0.5 while keeping the other settings and CV seed constant. It writes actual measured values to `results/learning_rate_experiment.csv`.
 
-Yoga Arfiansyah Firdaus
+## Output interpretation
 
-Master of Information Systems  
-Telkom University
+- Accuracy and confusion matrix are based on cross-validation folds.
+- The displayed neural-network weights come from a separate model trained on the full selected dataset.
+- Do not claim 100% accuracy until the current program has actually produced that result.
+- The included 38-row `testdata.arff` is a small sample and is not used by the default reference workflow.
 
----
+## Troubleshooting
 
-For educational purposes only.
+- **Dataset not found:** run from the project root, or use Browse ARFF in the GUI.
+- **WEKA imports unresolved:** run Maven → Update Project or check that Maven can access its repository.
+- **Slow execution on 100,000 rows:** select `vehicledata_99.arff` to reproduce the small reference experiment first.
+- **Metrics differ from Explorer:** confirm the exact 99-row source data, WEKA version, classifier options, CV seed, and class attribute.

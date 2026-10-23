@@ -1,14 +1,6 @@
-# Java compiled files
-bin/
 target/
-*.class
-
-# macOS
+bin/
+.settings/
 .DS_Store
-
-# Eclipse workspace metadata
-.metadata/
-
-# Logs and temporary files
-*.log
-*.tmp
+results/*.csv
+!results/README.md

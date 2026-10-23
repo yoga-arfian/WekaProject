@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
 	<name>WekaProject</name>
-	<comment></comment>
+	<comment>WEKA MLP academic project</comment>
 	<projects>
 	</projects>
 	<buildSpec>
@@ -10,14 +10,14 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>org.eclipse.m2e.core.maven2Builder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
+		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<variableList>
-		<variable>
-			<name>WekaLib</name>
-			<value>file:/Users/macbookairm1/Downloads/weka-3-6-15/weka-src.jar</value>
-		</variable>
-	</variableList>
 </projectDescription>
